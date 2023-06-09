@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Task Manager</title>
+  <style>
+    /* CSS styles for the task manager */
+    h1 {
+      text-align: center;
+    }
+    
+    form {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    input[type="text"] {
+      width: 300px;
+      padding: 5px;
+    }
+    
+    button {
+      padding: 5px 10px;
+    }
+    
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+    
+    li {
+      margin-bottom: 10px;
+    }
+    
+    .completed {
+      text-decoration: line-through;
+    }
+  </style>
+  <script>
+    // JavaScript code for handling task functionalities
+    document.addEventListener("DOMContentLoaded", function() {
+      var taskForm = document.getElementById("taskForm");
+      var taskInput = document.getElementById("taskInput");
+      var taskList = document.getElementById("taskList");
+      
+      taskForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+        
+        var taskText = taskInput.value.trim();
+        
+        if (taskText !== "") {
+          var li = document.createElement("li");
+          li.innerText = taskText;
+          
+          li.addEventListener("click", function() {
+            this.classList.toggle("completed");
+          });
+          
+          taskList.appendChild(li);
+          
+          taskInput.value = "";
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <h1>Task Manager</h1>
+  
+  <form id="taskForm" method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+    <input type="text" id="taskInput" name="task_name" placeholder="Enter task...">
+    <button type="submit">Add Task</button>
+  </form>
+  
+  <ul id="taskList">
+    <?php
+    // PHP code for retrieving and displaying tasks from the database
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "task_manager_db";
+
+    $conn = new mysqli($servername, $username, $password, $dbname);
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    $sql = "SELECT * FROM tasks";
+    $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $taskName = $row["task_name"];
+            $taskStatus = $row["task_status"];
+            $completedClass = ($taskStatus == 1) ? "completed" : "";
+            echo "<li class=\"$completedClass\">$taskName</li>";
+        }
+    }
+
+    $conn->close();
+    ?>
+  </ul>
+</body>
+</html>
